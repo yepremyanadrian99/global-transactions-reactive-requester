@@ -1,4 +1,4 @@
-package am.adrian.global.transactions.requester.constant;
+package am.adrian.global.transactions.requester.constant.enumeration;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

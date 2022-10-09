@@ -1,0 +1,8 @@
+api:
+  text-validation-url: localhost:8081
+
+spring:
+  data:
+    mongodb:
+      database: global-transactions-db
+      auto-index-creation: true
