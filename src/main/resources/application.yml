@@ -1,5 +1,7 @@
 api:
-  text-validation-url: localhost:8081
+  requestTimeoutMillis: 5000
+  textValidationUrl: localhost:8081
+  userServiceUrl: localhost:8082
 
 spring:
   data:

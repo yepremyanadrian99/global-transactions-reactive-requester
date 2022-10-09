@@ -8,6 +8,7 @@ import am.adrian.global.transactions.requester.dto.response.TextValidationRespon
 import am.adrian.global.transactions.requester.exception.RestrictedWordsUsedException;
 import am.adrian.global.transactions.requester.mapper.FolderMapper;
 import am.adrian.global.transactions.requester.repository.FolderRepository;
+import am.adrian.global.transactions.requester.util.UriUtil;
 import java.util.Objects;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -20,10 +21,12 @@ import reactor.core.scheduler.Schedulers;
 public record FolderService(FolderRepository repository, WebClient textValidationClient) {
 
     public Mono<FolderCreateResponse> create(FolderCreateRequest request) {
+        final var body = new TextValidationRequest(request.name());
         return Mono.just(request)
-            .publishOn(Schedulers.boundedElastic())
-            .doOnNext(folderRequest -> textValidationClient.post()
-                .body(BodyInserters.fromValue(new TextValidationRequest(request.name())))
+            .subscribeOn(Schedulers.boundedElastic())
+            .flatMap(folderRequest -> textValidationClient.post()
+                .uri(UriUtil::buildInternalValidateTextUri)
+                .body(BodyInserters.fromValue(body))
                 .retrieve()
                 .bodyToMono(TextValidationResponse.class)
                 .filter(Objects::nonNull)
@@ -32,7 +35,8 @@ public record FolderService(FolderRepository repository, WebClient textValidatio
                         throw new RestrictedWordsUsedException(response.violations());
                     }
                 })
-                .block())
+                .thenReturn(folderRequest)
+            )
             .map(folderRequest -> {
                 final var folder = new Folder();
                 folder.setName(folderRequest.name());

@@ -1,5 +1,6 @@
 package am.adrian.global.transactions.requester.handler;
 
+import static am.adrian.global.transactions.requester.constant.ErrorCodeConstants.INTERNAL_ERROR_CODE;
 import static am.adrian.global.transactions.requester.constant.ErrorCodeConstants.RESTRICTED_WORDS_USED_ERROR_CODE;
 
 import am.adrian.global.transactions.requester.dto.response.ErrorResponse;
@@ -41,7 +42,7 @@ public class DefaultExceptionHandler {
                 new ErrorResponse(
                     "error",
                     List.of(
-                        new ErrorResponse.Error(null, null, e.getMessage())
+                        new ErrorResponse.Error(null, INTERNAL_ERROR_CODE, e.getMessage())
                     )
                 )
             );
