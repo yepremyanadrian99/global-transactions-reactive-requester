@@ -7,6 +7,7 @@ import am.adrian.global.transactions.requester.dto.response.ErrorResponse;
 import am.adrian.global.transactions.requester.dto.response.RestrictedWordsErrorResponse;
 import am.adrian.global.transactions.requester.dto.response.TextValidationResponse;
 import am.adrian.global.transactions.requester.exception.RestrictedWordsUsedException;
+import am.adrian.global.transactions.requester.transaction.GlobalTransactionException;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -30,6 +31,19 @@ public class DefaultExceptionHandler {
                         new RestrictedWordsErrorResponse.Error(
                             words, RESTRICTED_WORDS_USED_ERROR_CODE, e.getMessage()
                         )
+                    )
+                )
+            );
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ErrorResponse> globalTransactionExceptionHandler(GlobalTransactionException e) {
+        return ResponseEntity.internalServerError()
+            .body(
+                new ErrorResponse(
+                    "error",
+                    List.of(
+                        new ErrorResponse.Error(null, INTERNAL_ERROR_CODE, e.getCause().getMessage())
                     )
                 )
             );
