@@ -15,7 +15,6 @@ import am.adrian.global.transactions.requester.repository.FolderRepository;
 import am.adrian.global.transactions.requester.util.UriUtil;
 import am.adrian.global.transactions.service.ReactiveTransactionalOperationExecutor;
 import java.util.Objects;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -26,16 +25,59 @@ import reactor.core.scheduler.Schedulers;
 
 @Service
 @Log4j2
-@RequiredArgsConstructor
-public class FolderService {
+public record FolderService(
+    FolderRepository repository,
+    WebClient textValidationClient,
+    WebClient userServiceClient,
+    ReactiveTransactionalOperationExecutor transactionalExecutor
+) {
 
-    private final FolderRepository repository;
-    private final WebClient textValidationClient;
-    private final WebClient userServiceClient;
-    private final ReactiveTransactionalOperationExecutor transactionalExecutor;
+    public Mono<FolderCreateResponse> create(FolderCreateRequest request) {
+        return transactionalExecutor.executeInsideTransaction(createOperation(), request);
+    }
 
-    private final TransactionalOperation<FolderCreateRequest, Mono<FolderCreateRequest>> findOrCreateUserOperation =
-        new TransactionalOperation<>() {
+    private Mono<FolderCreateRequest> findOrCreateUser(FolderCreateRequest request) {
+        return transactionalExecutor.executeInsideTransaction(findOrCreateUserOperation(), request);
+    }
+
+    private Mono<FolderCreateRequest> validateTexts(FolderCreateRequest request) {
+        final var body = new TextValidationRequest(request.name());
+        return textValidationClient.post()
+            .uri(UriUtil::buildInternalValidateTextUri)
+            .body(BodyInserters.fromValue(body))
+            .retrieve()
+            .bodyToMono(TextValidationResponse.class)
+            .filter(Objects::nonNull)
+            .doOnNext(response -> {
+                if (!CollectionUtils.isEmpty(response.violations())) {
+                    throw new RestrictedWordsUsedException(response.violations());
+                }
+            })
+            .thenReturn(request);
+    }
+
+    private TransactionalOperation<FolderCreateRequest, Mono<FolderCreateResponse>> createOperation() {
+        return new TransactionalOperation<>() {
+            @Override
+            public Mono<FolderCreateResponse> apply(FolderCreateRequest request) {
+                return Mono.just(request)
+                    .subscribeOn(Schedulers.boundedElastic())
+                    .flatMap(FolderService.this::findOrCreateUser)
+                    .flatMap(FolderService.this::validateTexts)
+                    .map(FolderMapper.INSTANCE::toFolder)
+                    .flatMap(repository::save)
+                    .map(FolderMapper.INSTANCE::toCreateResponse);
+            }
+
+            @Override
+            public void revert() {
+                throw new UnsupportedOperationException("No revert operation is defined for folder create request");
+            }
+        };
+    }
+
+    private TransactionalOperation<FolderCreateRequest, Mono<FolderCreateRequest>> findOrCreateUserOperation() {
+        return new TransactionalOperation<>() {
             private UserCreateRequest cachedUserRequest;
 
             @Override
@@ -89,47 +131,5 @@ public class FolderService {
                 return "Create user operation: " + cachedUserRequest;
             }
         };
-
-    private final TransactionalOperation<FolderCreateRequest, Mono<FolderCreateResponse>> createOperation =
-        new TransactionalOperation<>() {
-            @Override
-            public Mono<FolderCreateResponse> apply(FolderCreateRequest request) {
-                return Mono.just(request)
-                    .subscribeOn(Schedulers.boundedElastic())
-                    .flatMap(FolderService.this::findOrCreateUser)
-                    .flatMap(FolderService.this::validateTexts)
-                    .map(FolderMapper.INSTANCE::toFolder)
-                    .flatMap(repository::save)
-                    .map(FolderMapper.INSTANCE::toCreateResponse);
-            }
-
-            @Override
-            public void revert() {
-                throw new UnsupportedOperationException("No revert operation is defined for folder create request");
-            }
-        };
-
-    public Mono<FolderCreateResponse> create(FolderCreateRequest request) {
-        return transactionalExecutor.executeInsideTransaction(createOperation, request);
-    }
-
-    private Mono<FolderCreateRequest> findOrCreateUser(FolderCreateRequest request) {
-        return transactionalExecutor.executeInsideTransaction(findOrCreateUserOperation, request);
-    }
-
-    private Mono<FolderCreateRequest> validateTexts(FolderCreateRequest request) {
-        final var body = new TextValidationRequest(request.name());
-        return textValidationClient.post()
-            .uri(UriUtil::buildInternalValidateTextUri)
-            .body(BodyInserters.fromValue(body))
-            .retrieve()
-            .bodyToMono(TextValidationResponse.class)
-            .filter(Objects::nonNull)
-            .doOnNext(response -> {
-                if (!CollectionUtils.isEmpty(response.violations())) {
-                    throw new RestrictedWordsUsedException(response.violations());
-                }
-            })
-            .thenReturn(request);
     }
 }
