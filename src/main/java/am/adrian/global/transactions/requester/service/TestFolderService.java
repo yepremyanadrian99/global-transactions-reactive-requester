@@ -17,23 +17,31 @@ public class TestFolderService {
 
     private static final TransactionalOperation<FolderCreateRequest, Mono<FolderCreateResponse>> createOperation =
         new TransactionalOperation<>() {
+            private FolderCreateRequest cachedValue;
+
             @Override
             public Mono<FolderCreateResponse> apply(FolderCreateRequest request) {
+                cachedValue = request;
                 log.info("Creating folder inside a transaction");
                 log.info("... but, an exception happened!");
-                throw new RuntimeException("Something went wrong!!!");
+                return Mono.error(new RuntimeException("Something went wrong!!!"));
 //                return Mono.just(new FolderCreateResponse("Adrian", "Yepremyan", 123L));
             }
 
             @Override
             public void revert() {
-                log.info("Reverting folder creation operation");
+                log.info("Reverting folder creation operation: " + cachedValue);
+            }
+
+            @Override
+            public String toString() {
+                return "Create folder operation: " + cachedValue;
             }
         };
 
     private final ReactiveTransactionalOperationExecutor executor;
 
-    public Mono<?> create(FolderCreateRequest request, int count) {
+    public Mono<FolderCreateResponse> create(FolderCreateRequest request, int count) {
         return Flux.range(0, count)
             .flatMap(i -> executor.executeInsideTransaction(new TransactionalOperation<Integer, Mono<Integer>>() {
                 private Integer cachedValue;
@@ -48,6 +56,11 @@ public class TestFolderService {
                 @Override
                 public void revert() {
                     log.info("Reverting the transactional operation: " + cachedValue);
+                }
+
+                @Override
+                public String toString() {
+                    return "Integer operation: " + cachedValue;
                 }
             }, i))
             .collectList()

@@ -1,8 +1,7 @@
 package am.adrian.global.transactions.requester.util;
 
 import static am.adrian.global.transactions.requester.constant.UriConstants.TEXT_VALIDATOR_VALIDATE_TEXT_URI;
-import static am.adrian.global.transactions.requester.constant.UriConstants.USER_SERVICE_CREATE_USER_URI;
-import static am.adrian.global.transactions.requester.constant.UriConstants.USER_SERVICE_FIND_USER_URI;
+import static am.adrian.global.transactions.requester.constant.UriConstants.USER_SERVICE_BASE_URI;
 
 import java.net.URI;
 import lombok.AccessLevel;
@@ -25,10 +24,14 @@ public class UriUtil {
     }
 
     public static URI buildInternalFindUserUri(UriBuilder uriBuilder, Long userId) {
-        return uriBuilder.path(USER_SERVICE_FIND_USER_URI).path("/" + userId).build();
+        return uriBuilder.path(USER_SERVICE_BASE_URI).path("/" + userId).build();
     }
 
     public static URI buildInternalCreateUserUri(UriBuilder uriBuilder) {
-        return uriBuilder.path(USER_SERVICE_CREATE_USER_URI).build();
+        return uriBuilder.path(USER_SERVICE_BASE_URI).build();
+    }
+
+    public static URI buildInternalDeleteUserUri(UriBuilder uriBuilder, Long userId) {
+        return uriBuilder.path(USER_SERVICE_BASE_URI).path("/" + userId).build();
     }
 }

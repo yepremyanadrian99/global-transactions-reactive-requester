@@ -5,6 +5,9 @@ import static am.adrian.global.transactions.requester.transaction.constant.Conte
 import am.adrian.global.transactions.requester.transaction.domain.TransactionalContext;
 import reactor.core.publisher.Mono;
 
+/**
+ * Helper class that accomplishes the job of retrieving the current reactive requests' context.
+ */
 public class ReactiveRequestContextHolder {
 
     public static Mono<TransactionalContext> getTransactionalContext() {

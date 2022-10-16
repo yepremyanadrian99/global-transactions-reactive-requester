@@ -37,7 +37,11 @@ public class DefaultExceptionHandler {
     }
 
     @ExceptionHandler
-    public ResponseEntity<ErrorResponse> globalTransactionExceptionHandler(GlobalTransactionException e) {
+    public ResponseEntity<?> globalTransactionExceptionHandler(GlobalTransactionException e) {
+        if (e.getCause() instanceof RestrictedWordsUsedException restrictedWordsUsedException) {
+            return restrictedWordsUsedExceptionHandler(restrictedWordsUsedException);
+        }
+
         return ResponseEntity.internalServerError()
             .body(
                 new ErrorResponse(

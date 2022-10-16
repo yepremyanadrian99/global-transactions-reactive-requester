@@ -1,6 +1,7 @@
 package am.adrian.global.transactions.requester.controller;
 
 import am.adrian.global.transactions.requester.dto.request.FolderCreateRequest;
+import am.adrian.global.transactions.requester.dto.response.FolderCreateResponse;
 import am.adrian.global.transactions.requester.service.FolderService;
 import am.adrian.global.transactions.requester.service.TestFolderService;
 import lombok.RequiredArgsConstructor;
@@ -19,9 +20,14 @@ public class FolderController {
     private final FolderService service;
     private final TestFolderService testService;
 
-    @PostMapping("/{count}")
-    public Mono<?> create(@PathVariable int count,
-                          @RequestBody FolderCreateRequest request) {
+    @PostMapping
+    public Mono<?> create(@RequestBody FolderCreateRequest request) {
+        return service.create(request);
+    }
+
+    @PostMapping("/test/{count}")
+    public Mono<FolderCreateResponse> testCreate(@PathVariable int count,
+                                                 @RequestBody FolderCreateRequest request) {
         return testService.create(request, count);
     }
 }
