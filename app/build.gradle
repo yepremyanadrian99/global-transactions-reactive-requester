@@ -7,6 +7,14 @@ plugins {
 repositories {
     mavenLocal()
     mavenCentral()
+    maven {
+        name = "AdrianYepremyanGitHubRepository"
+        url = uri("https://maven.pkg.github.com/yepremyanadrian99/global-transactions")
+        credentials {
+            username = project.findProperty("githubUsername") ?: System.getenv("githubUsername")
+            password = project.findProperty("githubAuthToken") ?: System.getenv("githubAuthToken")
+        }
+    }
 }
 
 dependencies {

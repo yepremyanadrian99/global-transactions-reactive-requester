@@ -3,7 +3,6 @@ package am.adrian.global.transactions.requester.controller;
 import am.adrian.global.transactions.requester.dto.request.FolderCreateRequest;
 import am.adrian.global.transactions.requester.dto.response.FolderCreateResponse;
 import am.adrian.global.transactions.requester.service.TestFolderService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,7 +12,6 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/folder")
-@RequiredArgsConstructor
 public record TestFolderController(TestFolderService testService) {
 
     @PostMapping("/test/{count}")
