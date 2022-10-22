@@ -13,7 +13,7 @@ dependencies {
     implementation 'am.adrian:global-transactions:1.0.0-SNAPSHOT'
 
     implementation 'org.projectlombok:lombok:1.18.24'
-    implementation 'org.mapstruct:mapstruct:1.5.2.Final'
+    implementation 'org.mapstruct:mapstruct:1.5.3.Final'
 
     implementation group: 'io.netty', name: 'netty-resolver-dns-native-macos', version: '4.1.82.Final', classifier: 'osx-aarch_64'
 
@@ -21,7 +21,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
-    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.2.Final'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.3.Final'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
