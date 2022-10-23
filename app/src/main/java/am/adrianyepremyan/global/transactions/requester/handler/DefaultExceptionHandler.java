@@ -3,11 +3,11 @@ package am.adrianyepremyan.global.transactions.requester.handler;
 import static am.adrianyepremyan.global.transactions.requester.constant.ErrorCodeConstants.INTERNAL_ERROR_CODE;
 import static am.adrianyepremyan.global.transactions.requester.constant.ErrorCodeConstants.RESTRICTED_WORDS_USED_ERROR_CODE;
 
+import am.adrianyepremyan.global.transactions.exception.GlobalTransactionException;
 import am.adrianyepremyan.global.transactions.requester.dto.response.ErrorResponse;
 import am.adrianyepremyan.global.transactions.requester.dto.response.RestrictedWordsErrorResponse;
 import am.adrianyepremyan.global.transactions.requester.dto.response.TextValidationResponse;
 import am.adrianyepremyan.global.transactions.requester.exception.RestrictedWordsUsedException;
-import am.adrianyepremyan.global.transactions.exception.GlobalTransactionException;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
