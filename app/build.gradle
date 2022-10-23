@@ -18,7 +18,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'am.adrian:global-transactions:1.0.0'
+    implementation 'am.adrianyepremyan:global-transactions:1.1.0'
 
     implementation 'org.projectlombok:lombok:1.18.24'
     implementation 'org.mapstruct:mapstruct:1.5.3.Final'
